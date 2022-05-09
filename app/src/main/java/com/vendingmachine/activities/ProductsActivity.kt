@@ -1,17 +1,23 @@
 package com.vendingmachine.activities
 
+import android.app.Activity
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
-import android.icu.number.IntegerWidth
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -25,7 +31,6 @@ import com.vendingmachine.productsParams.ProductsParamsHolder
 import com.vendingmachine.viewModels.ProductsViewModel
 import java.net.SocketTimeoutException
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class ProductsActivity : AppCompatActivity(), ProductsAdapter.OnProductsClick {
@@ -120,6 +125,7 @@ class ProductsActivity : AppCompatActivity(), ProductsAdapter.OnProductsClick {
 
 
     private fun setParamsOfMachines(){
+        progressVisibleState(true, ListView = false, retryView = false)
         val loginInfoString = mSharedPreference.getString("LoginInfo", null)
         val  loginInfoModel = Gson().fromJson(loginInfoString, LoginResult::class.java)
         val userId = loginInfoModel.result?.user_context?.uid
@@ -212,14 +218,46 @@ class ProductsActivity : AppCompatActivity(), ProductsAdapter.OnProductsClick {
 
     override fun onProductClick(product: Record) {
 
-        startActivity(
-            Intent(this, PriceUpdateActivity::class.java)
-            .putExtra("product name", product.product_id[1].toString())
-                .putExtra("product quantity", product.quantity.toInt())
-        )
+        var alert: AlertDialog = AlertDialog.Builder(this).create()
+        alert.setTitle(product.product_id[1].toString())
+        alert.setButton(Dialog.BUTTON_POSITIVE ,"Update Price") {
+            //do your own idea.
+                dialog, which ->
+//            toUpdateActivity("Update Price", product)
+            toUpdateActivity("Update Quantity", product)
+        }
+        alert.setButton(Dialog.BUTTON_NEUTRAL ," Update Quantity") {
+            //do your own idea.
+                dialog, which ->
+
+            toUpdateActivity("Update Quantity", product)
+
+        }
+        alert.show()
+
+
 
     }
 
+    private fun toUpdateActivity(title : String, product: Record){
+
+
+        val intent =  Intent(this, PriceUpdateActivity::class.java)
+            .putExtra("product id", product.product_id[0].toString().toDouble().toInt())
+            .putExtra("product name", product.product_id[1].toString())
+            .putExtra("title", title)
+            .putExtra("product quantity", product.quantity.toInt())
+            .putExtra("id", product.id)
+            .putExtra("location id", product.location_id[0].toString().toDouble().toInt())
+        resultLauncher.launch(intent)
+    }
+
+
+    var resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            setParamsOfMachines()
+        }
+    }
 
 
 

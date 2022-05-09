@@ -1,7 +1,8 @@
 package com.vendingmachine.repositories
 
-import com.vendingmachine.productResponse.ProductsResult
-import com.vendingmachine.productsParams.ProductsParamsHolder
+
+import com.vendingmachine.quantityParams.QuantityParamsHolder
+import com.vendingmachine.quantityResponse.QuantityResponseHolder
 import com.vendingmachine.services.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +10,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 
-class ProductsRepository {
+class UpdateRepository {
 
     private val service: ApiInterface by lazy {
         NetworkManager.baseURL(BaseData.BASE_URL).serviceClass(ApiInterface::class.java)
@@ -20,10 +21,10 @@ class ProductsRepository {
     private val foregroundScope = CoroutineScope(Dispatchers.Main)
 
 
-    fun callProductsAPI(aHeaderMap: Map<String, String>, productsParamsHolder: ProductsParamsHolder, taskCallback: TaskCallback<ProductsResult>) {
+    fun callUpdateQuantityAPI(aHeaderMap: Map<String, String>, quantityParamsHolder: QuantityParamsHolder, taskCallback: TaskCallback<QuantityResponseHolder>) {
         backgroundScope.launch {
-            when (val result: Result<ProductsResult> =
-                service.getProducts(aHeaderMap, productsParamsHolder).awaitResult()) {
+            when (val result: Result<QuantityResponseHolder> =
+                service.updateQuantity(aHeaderMap, quantityParamsHolder).awaitResult()) {
                 is Result.Ok -> foregroundScope.launch { taskCallback.onComplete(result.value, result.response) }
                 is Result.Error -> foregroundScope.launch { taskCallback.onException(result.exception) }
                 is Result.Exception -> foregroundScope.launch { taskCallback.onException(result.exception) }

@@ -46,7 +46,7 @@ class ProductsAdapter(private val mList: List<Record>, private val onMachinesCli
         val productId: TextView = itemView.findViewById(R.id.product_id)
         val quantity: TextView = itemView.findViewById(R.id.quantity)
         val price: TextView = itemView.findViewById(R.id.price)
-        val edit: Button = itemView.findViewById(R.id.edit)
+        private val edit: Button = itemView.findViewById(R.id.edit)
         init {
             edit.setOnClickListener(this)
         }

@@ -133,6 +133,7 @@ class MainActivity : AppCompatActivity() {
                 setView(R.layout.dialog_progress_layout)
                 setCancelable(false)
             }.create()
+
             progressDialog.show()
 
 
